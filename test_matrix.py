@@ -6,4 +6,4 @@ def test_numbers_3_4():
  
 def test_strings_a_3():
     print('test a*3')
-    assert 'a'*3 == 'aaa' 
+    assert 'a'*3 == 'aaaa' 
