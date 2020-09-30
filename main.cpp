@@ -117,23 +117,23 @@ Matrix* multiply(Matrix* first, Matrix* second, int mode) {
 }
 
 int main(int argc, char ** argv) {
-    double firstStatic[3][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
-    double secondStatic[3][3] = {{1, 1, 1}, {1, 1, 1}, {1, 1, 1}};
+    float firstStatic[5][5] = {{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5}};
+    float secondStatic[5][5] = {{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5}};
     
-    Matrix* first = Matrix::createFromStatic<double, 3, 3>(firstStatic);
-    Matrix* second = Matrix::createFromStatic<double, 3, 3>(secondStatic);
+    Matrix* first = Matrix::createFromStatic<float, 5, 5>(firstStatic);
+    Matrix* second = Matrix::createFromStatic<float, 5, 5>(secondStatic);
 
     Matrix* result = multiply(first, second, 1);
 
-    first->print();
-    cout << endl;
-    second->print();
-    cout << endl;
+    // first->print();
+    // cout << endl;
+    // second->print();
+    // cout << endl;
     result->print();
 
     // matrix->print();
-    // matrix->toBin("matrix.bin");
+    result->toBin("matrix.bin");
 
-    // Matrix* newMatrix = Matrix::fromBin("matrix.bin");
+    // Matrix* newMatrix = Matrix::fromBin("1_A");
     // newMatrix->print();
 }
