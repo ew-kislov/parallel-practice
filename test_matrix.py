@@ -27,4 +27,4 @@ def test_matrix():
         matrix_C = mu.read_matrix(file_name_C)
         matrix_C_expected = mu.read_matrix(file_name_C_expected)
 
-        assert False == True, f"Fails on matrixes with names {file_name_A} and {file_name_B}"
+        assert mu.are_matrixes_equal(matrix_C, matrix_C_expected) == True, f"Fails on matrixes with names {file_name_A} and {file_name_B}"
