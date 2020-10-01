@@ -1,6 +1,5 @@
-name: Test
-on: pull-request
-
+on: [pull_request]
+name: Running tests
 jobs:
   test:
     name: test
