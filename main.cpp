@@ -3,6 +3,10 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <exception>
+#include <cmath>
+#include <time.h>
+#include <string>
 
 using namespace std;
 
@@ -39,7 +43,7 @@ struct Matrix {
         }
     }
 
-    static Matrix* fromBin(char* filename) {
+    static Matrix* fromBin(const char* filename) {
         int fd = open(filename, O_RDONLY, 0777);
 
         char type;
@@ -67,8 +71,8 @@ struct Matrix {
         return new Matrix(data, type, rows, cols);
     }
 
-    void toBin(char* filename) {
-        int fd = open(filename, O_CREAT | O_WRONLY, 0777);
+    void toBin(const char* filename) {
+        int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0777);
 
         write(fd, &(this->type), sizeof(char));
         write(fd, &(this->rows), sizeof(size_t));
@@ -84,7 +88,7 @@ struct Matrix {
     }
 };
 
-Matrix* multiply(Matrix* first, Matrix* second, int mode) {
+template <typename T> Matrix* multiply(Matrix* first, Matrix* second, int mode) {
     if (first->type != second->type) {
         throw "First matrix should be the same type as second";
     }
@@ -94,46 +98,119 @@ Matrix* multiply(Matrix* first, Matrix* second, int mode) {
 
     void** result = new void*[first->rows];
     for (size_t i = 0; i < first->rows; i++) {
-        if (first->type == 'f') {
-            result[i] = new float[second->cols];
-        } else {
-            result[i] = new double[second->cols];
-        }
+        result[i] = new T[second->cols];
     }
 
-    for (size_t i = 0; i < first->rows; i++) {
-        for (size_t j = 0; j < second->cols; j++) {
-            for (size_t k = 0; k < first->cols; k++) {
-                if (first->type == 'f') {
-                    ((float**)result)[i][j] += first->get(i, k) * second->get(k, j);
-                } else {
-                    ((double**)result)[i][j] += first->get(i, k) * second->get(k, j);
+    switch (mode) {
+        case 0:
+            for (size_t i = 0; i < first->rows; i++) {
+                for (size_t j = 0; j < second->cols; j++) {
+                    for (size_t k = 0; k < first->cols; k++) {
+                        ((T**)result)[i][j] += first->get(i, k) * second->get(k, j);
+                    }
                 }
             }
-        }
+            break;
+        case 1:
+            for (size_t i = 0; i < first->rows; i++) {
+                for (size_t k = 0; k < first->cols; k++) {
+                    T firstElement = first->get(i, k);
+                    for (size_t j = 0; j < second->cols; j++) {
+                        ((T**)result)[i][j] += firstElement * second->get(k, j);
+                    }
+                }
+            }
+            break;
+        case 2:
+            for (size_t k = 0; k < first->cols; k++) {
+                for (size_t i = 0; i < first->rows; i++) {
+                    double firstElement = first->get(i, k);
+                    for (size_t j = 0; j < second->cols; j++) {
+                        ((T**)result)[i][j] += firstElement * second->get(k, j);
+                    }
+                }
+            }
+            break;
+        case 3:
+            for (size_t j = 0; j < second->cols; j++) {
+                for (size_t i = 0; i < first->rows; i++) {
+                    T sum = 0;
+                    for (size_t k = 0; k < first->cols; k++) {
+                        sum += first->get(i, k) * second->get(k, j);
+                    }
+                    ((T**)result)[i][j] = sum;
+                }
+            }
+            break;
+        case 4:
+            for (size_t j = 0; j < second->cols; j++) {
+                for (size_t k = 0; k < first->cols; k++) {
+                    double secondElement = second->get(k, j);
+                    for (size_t i = 0; i < first->rows; i++) {
+                        ((T**)result)[i][j] += first->get(i, k) * secondElement;
+                    }
+                }
+            }
+            break;
+        case 5:
+            for (size_t k = 0; k < first->cols; k++) {
+                for (size_t j = 0; j < second->cols; j++) {
+                    double secondElement = second->get(k, j);
+                    for (size_t i = 0; i < first->rows; i++) {
+                        ((T**)result)[i][j] += first->get(i, k) * secondElement;
+                    }
+                }
+            }
+            break;
+        default:
+            throw invalid_argument("Wrong mode");
     }
 
     return new Matrix(result, first->type, first->rows, second->cols);
 }
 
+void parseCommand(int argc, char** argv, string& fileNameA, string& fileNameB, string& fileNameC, int& mode) {
+    if (argc != 5 || atoi(argv[4]) < 0 || atoi(argv[4]) > 5) {
+        throw invalid_argument("Wrong parameters");
+    }
+
+    fileNameA = argv[1];
+    fileNameB = argv[2];
+    fileNameC = argv[3];
+    mode = atoi(argv[4]);
+}
+
 int main(int argc, char ** argv) {
-    float firstStatic[5][5] = {{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5}};
-    float secondStatic[5][5] = {{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5},{1, 2, 3, 4, 5}};
-    
-    Matrix* first = Matrix::createFromStatic<float, 5, 5>(firstStatic);
-    Matrix* second = Matrix::createFromStatic<float, 5, 5>(secondStatic);
+    try {
+        string fileA, fileB, fileC;
+        int mode;
+        clock_t time = 0;
 
-    Matrix* result = multiply(first, second, 1);
+        parseCommand(argc, argv, fileA, fileB, fileC, mode);
 
-    // first->print();
-    // cout << endl;
-    // second->print();
-    // cout << endl;
-    result->print();
+        Matrix* matrixA = Matrix::fromBin(fileA.c_str());
+        Matrix* matrixB = Matrix::fromBin(fileB.c_str());
+        Matrix* matrixC;
 
-    // matrix->print();
-    result->toBin("matrix.bin");
+        if (matrixA->type == 'f') {
+            matrixC = multiply<float>(matrixA, matrixB, mode);
+        } else {
+            matrixC = multiply<double>(matrixA, matrixB, mode);
+        }
 
-    // Matrix* newMatrix = Matrix::fromBin("1_A");
-    // newMatrix->print();
+        matrixC->toBin(fileC.c_str());
+
+        time = clock() - time;
+
+        cout << "Multiplication mode: " << mode << endl;
+        cout << "Elements type: " << (matrixC->type == 'f' ? "float" : "double") << endl;
+
+        cout << "Sizes: " << matrixA->rows << "x" << matrixA->cols;
+        cout << " * " << matrixB->rows << "x" << matrixB->cols;
+        cout << " -> " << matrixC->rows << "x" << matrixC->cols << endl;
+        
+        cout << "Took time: " << ((float)time)/CLOCKS_PER_SEC << " sec" << endl;
+    } catch (exception &err) {
+        cout << err.what() << endl;
+    }
 }
