@@ -147,7 +147,7 @@ template <typename T> Matrix* multiply(Matrix* first, Matrix* second, int mode) 
                 for (size_t k = 0; k < first->cols; k++) {
                     double secondElement = second->get(k, j);
                     for (size_t i = 0; i < first->rows; i++) {
-                        ((T**)result)[i][j] += first->get(i, k) * secondElement;
+                        ((T**)result)[i][j] += first->get(i, 0) * secondElement;
                     }
                 }
             }
