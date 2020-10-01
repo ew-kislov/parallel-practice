@@ -4,7 +4,7 @@ init:
 	g++ main.cpp -o main.sh
 	python matrix_util.py
 test_inner:
-	pytest
+	pytest -s
 clean:
 	rm -rf tests
 	rm main.sh
