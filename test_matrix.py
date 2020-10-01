@@ -15,7 +15,7 @@ def test_matrix():
         file_name_C_expected = str(i) + "_C_expected"
         mode = i % 6
 
-        command = ("./main " +
+        command = ("./main.sh " +
             mu.files_dir + file_name_A + " " +
             mu.files_dir + file_name_B + " " +
             mu.files_dir + file_name_C + " " +
