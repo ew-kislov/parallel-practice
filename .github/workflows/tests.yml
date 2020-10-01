@@ -1,12 +1,19 @@
-on: [push, pull_request]
+on: [pull_request]
 name: Running tests
 jobs:
   test:
-    name: Rinning tests with pytest
+    name: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - name: GitHub Action for pytest
-      uses: cclauss/GitHub-Action-for-pytest@master
-      with:
-        args: pytest
+      - uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Tests
+        run: python3 -m pytest -s

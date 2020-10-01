@@ -1,9 +1,30 @@
 import pytest
- 
-def test_numbers_3_4():
-    print('test 3*4')
-    assert 3*4 == 12 
- 
-def test_strings_a_3():
-    print('test a*3')
-    assert 'a'*3 == 'aaaa' 
+import numpy as np
+import matrix_util as mu
+
+def execute(command):
+    import subprocess
+    process = subprocess.Popen(command, shell = True)
+    process.communicate()
+
+def test_matrix():
+    for i in range(1, 13):
+        file_name_A = str(i) + "_A"
+        file_name_B = str(i) + "_B"
+        file_name_C = str(i) + "_C"
+        file_name_C_expected = str(i) + "_C_expected"
+        mode = i % 6
+
+        command = ("./main " +
+            mu.files_dir + file_name_A + " " +
+            mu.files_dir + file_name_B + " " +
+            mu.files_dir + file_name_C + " " +
+            str(mode))
+        
+        execute(command)
+        print()
+
+        matrix_C = mu.read_matrix(file_name_C)
+        matrix_C_expected = mu.read_matrix(file_name_C_expected)
+
+        assert mu.are_matrixes_equal(matrix_C, matrix_C_expected) == True, f"Fails on matrixes with names {file_name_A} and {file_name_B}"
