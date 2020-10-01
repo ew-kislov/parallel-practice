@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import math
+import subprocess
 
 files_dir = './tests/'
 
@@ -17,6 +18,7 @@ def generate_test_set_to_bin(type, matrixes_index):
     write_matrix(matrix_A, type, m, k, str(matrixes_index) + '_A')
     write_matrix(matrix_B, type, k, n, str(matrixes_index) + '_B')
     write_matrix(matrix_C, type, m, n, str(matrixes_index) + '_C_expected')
+
 
 def generate_exec_set_to_bin(type, set_name, m, k, n):
     matrix_A = generate_matrix(m, k, type)
@@ -64,15 +66,14 @@ def generate_matrix_dim():
 def generate_matrix(rows, cols, type):
     return 100 * np.random.rand(rows, cols).astype(type)
 
+def get_running_time(command):
+    process = subprocess.run(command.split(' '), stdout=subprocess.PIPE)
+    time = process.stdout.decode().split('\n')[3].split(' ')[-2]
 
-if __name__ == '__main__':
-    # generating float type matrixes
-    for i in range(1, 7):
-        generate_test_set_to_bin('f', i)
+    return time
 
-    # generating double type matrixes
-    for i in range(7, 13):
-        generate_test_set_to_bin('d', i)
-
-    # generating matrixes for performance test
-    generate_exec_set_to_bin('f', 'perf', 500, 300, 400)
+def output_performance_data():
+    file = open('data.csv', 'w')
+    for i in range(0, 6):
+        time = get_running_time(f"./main.sh tests/perf_A tests/perf_B tests/perf_C {i}")
+        file.writelines(f"{i} {time}\n")

@@ -1,9 +1,9 @@
 import pytest
 import numpy as np
 import matrix_util as mu
+import subprocess
 
 def execute(command):
-    import subprocess
     process = subprocess.Popen(command, shell = True)
     process.communicate()
 

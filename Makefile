@@ -1,10 +1,15 @@
 test: init test_inner clean
+report_data: init report_data_inner clean
 init:
 	mkdir -p tests
 	g++ main.cpp -o main.sh
-	python matrix_util.py
 test_inner:
+	python generate_tests.py
 	pytest -s
+report_data_inner:
+	python generate_csv_data.py
+	gnuplot generate_diagram
+	rm data.csv
 clean:
 	rm -rf tests
 	rm main.sh

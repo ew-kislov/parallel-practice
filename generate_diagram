@@ -1,0 +1,4 @@
+set xtics ("ijk" 0, "ikj" 1, "kij" 2, "jik" 3, "jki" 4, "kji" 5)
+set term png
+set output "diagram.png"
+plot 'data.csv' with lines
