@@ -47,24 +47,26 @@ def generate_matrix(rows, cols):
 
 
 def get_program_perf(command):
+    print('Starting command ' + command)
     process = subprocess.run(command.split(' '), stdout=subprocess.PIPE)
     output = process.stdout.decode()
+    print(output)
 
     strings = output.split('\n')
-    time = strings[3].split(' ')[-2]
-    l1_misses = strings[4].split(' ')[-1]
-    l2_misses = strings[5].split(' ')[-1]
-    cycles = strings[6].split(' ')[-1]
+    # time = strings[3].split(' ')[-2]
+    # l1_misses = strings[4].split(' ')[-1]
+    # l2_misses = strings[5].split(' ')[-1]
+    time = strings[-2].split(' ')[-1]
 
-    return (time, l1_misses, l2_misses, cycles)
+    return time
 
 
 if __name__ == "__main__":
     
-    time_file = open('time.csv', 'w')
-    l1_file = open('l1_misses.csv', 'w')
-    l2_file = open('l2_misses.csv', 'w')
-    cycles_file = open('cycles.csv', 'w')
+    time_file = open('flops.csv', 'w')
+    # l1_file = open('l1_misses.csv', 'w')
+    # l2_file = open('l2_misses.csv', 'w')
+    # cycles_file = open('cycles.csv', 'w')
 
     for i in range(1, 6):
         factor = 1000
@@ -80,7 +82,9 @@ if __name__ == "__main__":
         perf2 = get_program_perf(command2)
         perf3 = get_program_perf(command3)
 
-        time_file.writelines(f"{i} {perf1[0]} {perf2[0]} {perf3[0]}\n")
-        l1_file.writelines(f"{i} {perf1[1]} {perf2[1]} {perf3[1]}\n")
-        l2_file.writelines(f"{i} {perf1[2]} {perf2[2]} {perf3[2]}\n")
-        cycles_file.writelines(f"{i} {perf1[3]} {perf2[3]} {perf3[3]}\n")
+        perf_str = f"{i} {perf1} {perf2} {perf3}\n"
+        print(perf_str)
+        time_file.writelines(perf_str)
+        # l1_file.writelines(f"{i} {perf1[1]} {perf2[1]} {perf3[1]}\n")
+        # l2_file.writelines(f"{i} {perf1[2]} {perf2[2]} {perf3[2]}\n")
+        # cycles_file.writelines(f"{i} {perf1[3]} {perf2[3]} {perf3[3]}\n")

@@ -23,3 +23,9 @@ set output "l2_misses.png"
 plot 'l2_misses.csv' using 1:2 w lp title 'ijk, 32', \
      '' using 1:3 w lp title 'ikj, 32', \
      '' using 1:4 w lp title 'ikj, 52'
+
+set output "flops.png"
+
+plot 'flops.csv' using 1:2 w lp title 'ijk, 32', \
+     '' using 1:3 w lp title 'ikj, 32', \
+     '' using 1:4 w lp title 'ikj, 52'

@@ -13,13 +13,14 @@ def test_matrix():
         file_name_B = str(i) + "_B"
         file_name_C = str(i) + "_C"
         file_name_C_expected = str(i) + "_C_expected"
-        mode = i % 6
+        mode = 1
 
-        command = ("./main.sh " +
+        command = ("./a.out " +
             mu.files_dir + file_name_A + " " +
             mu.files_dir + file_name_B + " " +
             mu.files_dir + file_name_C + " " +
-            str(mode))
+            str(mode) +
+            52)
         
         execute(command)
         print()

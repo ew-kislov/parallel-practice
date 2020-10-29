@@ -139,7 +139,7 @@ void readMatrixes(
     }
 }
 
-void printPerformanceInfo(size_t rowsA, size_t colsA, size_t rowsB, size_t colsB, int blockSize, int mode, float time, long long papiValues[5]) {
+void printPerformanceInfo(size_t rowsA, size_t colsA, size_t rowsB, size_t colsB, int blockSize, int mode, float time, long long papiValues[1]) {
     cout << "Multiplication mode: " << (mode == 1 ? "ijk" : "ikj") << endl;
     cout << "Block size: " << blockSize << endl;
 
@@ -149,9 +149,7 @@ void printPerformanceInfo(size_t rowsA, size_t colsA, size_t rowsB, size_t colsB
         
     cout << "Took time: " << ((float)time)/CLOCKS_PER_SEC << " sec" << endl;
 
-    cout << "Cache L1 misses: " << papiValues[0] << endl;
-    cout << "Cache L2 misses: " << papiValues[1] << endl;
-    cout << "Total cycles: " << papiValues[2] << endl;
+    cout << "FLOPS: " << papiValues[0] << endl;
 
 }
 
@@ -168,25 +166,25 @@ int main(int argc, char** argv) {
 
         readMatrixes(fileA, fileB, &rowsA, &colsA, &rowsB, &colsB, &A, &B);
 
-        clock_t time = 0;
-        int papiEvents[3] = { PAPI_L1_TCM, PAPI_L2_TCM, PAPI_TOT_CYC };
-        long long papiValues[3];
-        int papiStatus;
+        // clock_t time = 0;
+        // int papiEvents[1] = { PAPI_FP_OPS };
+        // long long papiValues[1];
+        // int papiStatus;
 
-        papiStatus = PAPI_start_counters(papiEvents, 3);
-        if (papiStatus != PAPI_OK) {
-            cerr << PAPI_strerror(papiStatus) << endl;
-            return 1;
-        }
+        // papiStatus = PAPI_start_counters(papiEvents, 1);
+        // if (papiStatus != PAPI_OK) {
+        //     cerr << PAPI_strerror(papiStatus) << endl;
+        //     return 1;
+        // }
 
         float** C = tileMultiplication(A, B, rowsA, colsA, colsB, blockSize, mode);
 
-        time = clock() - time;
-        papiStatus = PAPI_read_counters(papiValues, 3);
-        if (papiStatus != PAPI_OK) {
-            cerr << PAPI_strerror(papiStatus) << endl;
-            return 1;
-        }
+        // time = clock() - time;
+        // papiStatus = PAPI_read_counters(papiValues, 1);
+        // if (papiStatus != PAPI_OK) {
+        //     cerr << PAPI_strerror(papiStatus) << endl;
+        //     return 1;
+        // }
 
         printPerformanceInfo(rowsA, colsA, rowsB, colsB, blockSize, mode, time, papiValues);
 
