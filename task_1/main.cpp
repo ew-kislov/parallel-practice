@@ -180,37 +180,70 @@ void parseCommand(int argc, char** argv, string& fileNameA, string& fileNameB, s
     mode = atoi(argv[4]);
 }
 
-int main(int argc, char ** argv) {
+void printInfo (size_t rowsA, size_t colsA, size_t rowsB, size_t colsB, int blockSize, int mode, long long papiValues[5], float time) {
+    cout << "Block size: " << blockSize << endl;
+    cout << "Multiplication mode: " << (mode == 1 ? "ijk" : "ikj") << endl;
+
+    cout << "Sizes: " << rowsA << "x" << colsA;
+    cout << " * " << rowsB << "x" << colsB;
+    cout << " => " << rowsA << "x" << colsB << endl;
+        
+    cout << "Time: " << ((float)time)/CLOCKS_PER_SEC << " sec" << endl;
+
+    cout << "L1 cache misses: " << papiValues[0] << endl;
+    cout << "L2 cache misses: " << papiValues[1] << endl;
+    cout << "Total cycles: " << papiValues[2] << endl;
+    cout << "TLB: " << papiValues[3] << endl;
+}
+
+int main (int argc, char** argv) {
     try {
-        string fileA, fileB, fileC;
-        int mode;
-        clock_t time = 0;
+        char *fileA, *fileB, *fileC;
+        int blockSize, mode;
 
-        parseCommand(argc, argv, fileA, fileB, fileC, mode);
+        parseCommand(argc, argv, &fileA, &fileB, &fileC, &blockSize, &mode);
 
-        Matrix* matrixA = Matrix::fromBin(fileA.c_str());
-        Matrix* matrixB = Matrix::fromBin(fileB.c_str());
-        Matrix* matrixC;
+        float **A, **B;
+        size_t rowsA, colsA;
+        size_t rowsB, colsB;
 
-        if (matrixA->type == 'f') {
-            matrixC = multiply<float>(matrixA, matrixB, mode);
-        } else {
-            matrixC = multiply<double>(matrixA, matrixB, mode);
+        A = fromBin(fileA, rowsA, colsA);
+        B = fromBin(fileB, rowsB, colsB);
+
+        if (colsA != rowsB) {
+            throw logic_error("Number of A columns are not equal number B rows");
         }
 
-        matrixC->toBin(fileC.c_str());
+        clock_t time = 0;
+
+        int papiEvents[4] = { PAPI_L1_DCM, PAPI_L2_DCM, PAPI_TOT_CYC, PAPI_TLB_TL };
+        long long papiValues[4];
+        int papiStatus;
+
+        papiStatus = PAPI_start_counters(papiEvents, 4);
+        if (papiStatus != PAPI_OK) {
+            cerr << PAPI_strerror(papiStatus) << endl;
+            return 1;
+        }
+
+        float** C = mult(A, B, rowsA, colsA, colsB, blockSize, mode);
 
         time = clock() - time;
+        papiStatus = PAPI_read_counters(papiValues, 4);
+        if (papiStatus != PAPI_OK) {
+            cerr << PAPI_strerror(papiStatus) << endl;
+            return 1;
+        }
 
-        cout << "Multiplication mode: " << mode << endl;
-        cout << "Elements type: " << (matrixC->type == 'f' ? "float" : "double") << endl;
+        printInfo(rowsA, colsA, rowsB, colsB, blockSize, mode, papiValues, time);
 
-        cout << "Sizes: " << matrixA->rows << "x" << matrixA->cols;
-        cout << " * " << matrixB->rows << "x" << matrixB->cols;
-        cout << " -> " << matrixC->rows << "x" << matrixC->cols << endl;
-        
-        cout << "Took time: " << ((float)time)/CLOCKS_PER_SEC << " sec" << endl;
-    } catch (exception &err) {
-        cout << err.what() << endl;
+        toBin(fileC, C, rowsA, colsB);
+
+        return 0;
+
+    } catch (exception& exc) {
+
+        cerr << exc.what() << endl;
+
     }
 }
