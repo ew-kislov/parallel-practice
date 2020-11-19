@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void primeNumbers(int* all, int first, int last, int procNum, int procRank) {
+void primeNumbers(int* totalPrimes, int first, int last, int procNum, int procRank) {
     int len = last - first;
     int iMax = int(sqrt(last));
     int* trunkedPrimes = new int [iMax + 1];
@@ -34,10 +34,10 @@ void primeNumbers(int* all, int first, int last, int procNum, int procRank) {
     int partSize = ceil(len * 1.0 / procNum);
     int firstElement = procRank * partSize;
     int lastElement = procRank == procNum - 1 ? len - 1 : firstElement + partSize - 1;
-    int buf[partSize];
+    int* buff = new int[partSize];
 
     for (int i = 0; i < partSize; ++i) {
-        buf[i] = 1;
+        buff[i] = 1;
     }
 
     for (int i = 2; i <= iMax; ++i) {
@@ -45,20 +45,20 @@ void primeNumbers(int* all, int first, int last, int procNum, int procRank) {
             int a = ceil((firstElement + first - i*i) * 1.0 / i);
             a = a < 0 ? 0 : a;
             for (int j = i*i + a * i; j <= lastElement + first; j += i) {
-                buf[j - firstElement - first] = 0;
+                buff[j - firstElement - first] = 0;
             }
         }
     }
 
-    MPI_Gather(&buf[0], partSize, MPI_INT, &all[0], partSize, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(&buff[0], partSize, MPI_INT, &totalPrimes[0], partSize, MPI_INT, 0, MPI_COMM_WORLD);
 
     if (procRank == 0 && first == 1) {
-        all[0] = 0;
+        totalPrimes[0] = 0;
     }
 }
 
 int main(int argc, char** argv) {
-    int* all;
+    int* totalPrimes;
     int first, last, procNum, procRank;
     double begin, end, time, totalTime, maxTime;
 
@@ -77,14 +77,14 @@ int main(int argc, char** argv) {
 
     if (procRank == 0) {
         cout << endl << "Number of processes: " << procNum << endl << endl;
-        all = new int [last - first];
+        totalPrimes = new int [last - first];
     }
 
     MPI_Bcast(&first, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&last, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     begin = MPI_Wtime();
-    primeNumbers(all, first, last, procNum, procRank);
+    primeNumbers(totalPrimes, first, last, procNum, procRank);
     end = MPI_Wtime();
     time = end - begin;
 
@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     MPI_Finalize();
 
     if (procRank == 0) {
-        int result = count(all, &all[last - first], 1);
+        int result = count(totalPrimes, &totalPrimes[last - first], 1);
         
         cout << "Total time: " << time << endl;
         cout << "Max process time: " << maxTime << endl;
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
         totalFile.open("total.csv", ios::out | ios::app);
 
         for (int i = 0; i < last - first; i++) {
-            if (all[i]) {
+            if (totalPrimes[i]) {
                 outFile << first + i << " ";
             }
         }
