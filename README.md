@@ -33,8 +33,11 @@
 
 ## Запуск
 
-1. `mpic++ main.cpp -w`
-2. `mpirun -np <число процессов не более чем в hostfile.txt> -hostfile hostfile.txt a.out`
+mpirun -np {process_number} ./main {start} {end}    
+
+## Построение графика
+
+`make plot` - строит графики зависимости времени от количества процессов   
 
 ## Автор
 
