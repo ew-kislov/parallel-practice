@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
     if (procRank == 0) {
         int result = count(totalPrimes, &totalPrimes[last - first], 1);
         
-        cout << "Total time: " << time << endl;
+        cout << "Total time: " << totalTime << endl;
         cout << "Max process time: " << maxTime << endl;
         cout << result << " prime numbers between " << first << " and " << last << endl;
 
