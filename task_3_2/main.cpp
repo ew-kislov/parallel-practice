@@ -18,7 +18,7 @@ int* trunkedPrimes;
 int* primes;
 int iMax;
 
-void* potok(void* params) {
+void* threadFunction(void* params) {
     int* bounds = ((int *)params);
     int firstElement = bounds[0];
     int lastElement = bounds[1];
@@ -41,18 +41,18 @@ void* potok(void* params) {
 }
 
 int main(int argc, char *argv[]) {
-    int first, last, procNum;
+    int first, last, threadNum;
 
     if (argc != 4) {
         cout << "3 parameters required" << endl;
         exit(0);
     }
 
-    procNum = atoi(argv[1]);
+    threadNum = atoi(argv[1]);
     first = atoi(argv[2]);
     last = atoi(argv[3]);
 
-    cout << "Number of threads: " << procNum << endl << endl;
+    cout << "Number of threads: " << threadNum << endl << endl;
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
@@ -76,23 +76,23 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    int partSize = ceil(len * 1.0 / procNum);
+    int partSize = ceil(len * 1.0 / threadNum);
 
-    pthread_t threadIds[procNum];
+    pthread_t threadIds[threadNum];
     pthread_attr_t threadAttributes;
 
     pthread_attr_init(&threadAttributes);
 
     primes = new int[last];
 
-    for (int i = 0; i < procNum; i++) {
+    for (int i = 0; i < threadNum; i++) {
         int* bounds = new int[2];
         bounds[0] = i * partSize + first;
-        bounds[1] = i == procNum - 1 ? len - 1 + first : bounds[0] + partSize - 1;
-        int res = pthread_create(&threadIds[i], &threadAttributes, potok, (void*)bounds);
+        bounds[1] = i == threadNum - 1 ? len - 1 + first : bounds[0] + partSize - 1;
+        int res = pthread_create(&threadIds[i], &threadAttributes, threadFunction, (void*)bounds);
     }
 
-    for (int i = 0; i < procNum; i++) {
+    for (int i = 0; i < threadNum; i++) {
         int res = pthread_join(threadIds[i], NULL);
     }
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    totalFile << procNum << "\t" << totalTime << endl;
+    totalFile << threadNum << "\t" << totalTime << endl;
 
     outFile.close();
     totalFile.close();
