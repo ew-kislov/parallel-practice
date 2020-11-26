@@ -4,6 +4,7 @@ plot: init plot_inn clean
 init:
 	mpic++ -o main main.cpp
 plot_inn:
+	mpirun -np 1 ./main
 	mpirun -np 2 ./main
 	mpirun -np 4 ./main
 	mpirun -np 8 ./main

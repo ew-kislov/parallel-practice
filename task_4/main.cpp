@@ -60,55 +60,11 @@ double* vectorFromBin(string fileName, int& length) {
     return vector;
 }
 
-void matrixToBin(string fileName, double* matrix, int rows, int cols) {
-    int fd = open(fileName.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0777);
-
-    write(fd, &rows, sizeof(size_t));
-    write(fd, &cols, sizeof(size_t));
-
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            write(fd, &(matrix[i * cols + j]), sizeof(double));
-        }
-    }
-
-    close(fd);
-}
-
-void vectorToBin(string fileName, double* vector, int rows) {
-    int fd = open(fileName.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0777);
-
-    write(fd, &rows, sizeof(size_t));
-    write(fd, vector, sizeof(double) * rows);
-
-    close(fd);
-}
-
-void printMatrix(double* matrix, int rows, int cols) {
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            cout << matrix[i * cols + j] << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
-
 void printVector(double* vector, int rows) {
     for (int i = 0; i < rows; ++i) {
         cout << vector[i] << " ";
     }
     cout << endl << endl;
-}
-
-double* flip(double* matrix, int rows, int cols) {
-    double* transponated = new double [rows * cols];
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            transponated[j * rows + i] = matrix[i * cols + j];
-        }
-    }
-    return transponated;
 }
 
 int* getBounds(int size, int rank, int procNum) {
