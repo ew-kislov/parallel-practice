@@ -60,13 +60,6 @@ double* vectorFromBin(string fileName, int& length) {
     return vector;
 }
 
-void printVector(double* vector, int rows) {
-    for (int i = 0; i < rows; i++) {
-        cout << vector[i] << " ";
-    }
-    cout << endl << endl;
-}
-
 int* getBounds(int size, int rank, int procNum) {
     int* bounds = new int [2];
     int lowBound, upperBound;
@@ -233,7 +226,6 @@ int main(int argc, char *argv[]) {
     if (procRank == 0) {
         matrix = matrixFromBin(fileMatrix, rows, cols, strategy);
         vector = vectorFromBin(fileVector, cols);
-        cout << rows << "x" << cols << endl;
     }
 
     MPI_Bcast(&strategy, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -257,11 +249,12 @@ int main(int argc, char *argv[]) {
         file << procNum << "\t" << rows << "\t" << cols << "\t" << maxTime << endl;
         file.close();
 
-        printVector(result, rows);
-
         delete[] matrix;
         delete[] vector;
         delete[] result;
     }
+
+    cout << procNum << " " << maxTime << endl;
+
     return 0;
 }
