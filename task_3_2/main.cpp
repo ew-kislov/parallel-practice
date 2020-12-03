@@ -100,30 +100,31 @@ int main(int argc, char *argv[]) {
         primes[1] = 0;
     }
 
-	gettimeofday(&end, NULL);
-    float totalTime = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000) * 1.0 / 1000;
+	// gettimeofday(&end, NULL);
+    // float totalTime = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000) * 1.0 / 1000;
 
     int result = count(&primes[first], &primes[last], 1);
+    cout << result << endl;
 
-    cout << "Total time: " << totalTime << endl;
-    cout << "Result: " << result << " prime numbers between " << first << " and " << last << endl;
+    // cout << "Total time: " << totalTime << endl;
+    // cout << "Result: " << result << " prime numbers between " << first << " and " << last << endl;
 
-    ofstream outFile;
-    ofstream totalFile;
+    // ofstream outFile;
+    // ofstream totalFile;
     
-    outFile.open("out.txt", ios::out | ios::trunc);
-    totalFile.open("total.csv", ios::out | ios::app);
+    // outFile.open("out.txt", ios::out | ios::trunc);
+    // totalFile.open("total.csv", ios::out | ios::app);
 
-    for (int i = first; i < last; i++) {
-        if (primes[i]) {
-            outFile << i << " ";
-        }
-    }
+    // for (int i = first; i < last; i++) {
+    //     if (primes[i]) {
+    //         outFile << i << " ";
+    //     }
+    // }
 
-    totalFile << threadNum << "\t" << totalTime << endl;
+    // totalFile << threadNum << "\t" << totalTime << endl;
 
-    outFile.close();
-    totalFile.close();
+    // outFile.close();
+    // totalFile.close();
 
     delete[] primes;
     delete[] trunkedPrimes;
