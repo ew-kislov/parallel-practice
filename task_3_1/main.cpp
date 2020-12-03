@@ -95,30 +95,31 @@ int main(int argc, char** argv) {
 
     if (procRank == 0) {
         int result = count(totalPrimes, &totalPrimes[last - first], 1);
+        cout << result << endl;
         
-        cout << "Total time: " << totalTime << endl;
-        cout << "Max process time: " << maxTime << endl;
-        cout << result << " prime numbers between " << first << " and " << last << endl;
+        // cout << "Total time: " << totalTime << endl;
+        // cout << "Max process time: " << maxTime << endl;
+        // cout << result << " prime numbers between " << first << " and " << last << endl;
 
-        ofstream outFile;
-        ofstream maxFile;
-        ofstream totalFile;
+        // ofstream outFile;
+        // ofstream maxFile;
+        // ofstream totalFile;
     
-        outFile.open("out.txt", ios::out | ios::trunc);
-        maxFile.open("max.csv", ios::out | ios::app);
-        totalFile.open("total.csv", ios::out | ios::app);
+        // outFile.open("out.txt", ios::out | ios::trunc);
+        // maxFile.open("max.csv", ios::out | ios::app);
+        // totalFile.open("total.csv", ios::out | ios::app);
 
-        for (int i = 0; i < last - first; i++) {
-            if (totalPrimes[i]) {
-                outFile << first + i << " ";
-            }
-        }
+        // for (int i = 0; i < last - first; i++) {
+        //     if (totalPrimes[i]) {
+        //         outFile << first + i << " ";
+        //     }
+        // }
 
-        maxFile << procNum << "\t" << maxTime << endl;
-        totalFile << procNum << "\t" << totalTime << endl;
+        // maxFile << procNum << "\t" << maxTime << endl;
+        // totalFile << procNum << "\t" << totalTime << endl;
 
-        outFile.close();
-        maxFile.close();
-        totalFile.close();
+        // outFile.close();
+        // maxFile.close();
+        // totalFile.close();
     }
 }
