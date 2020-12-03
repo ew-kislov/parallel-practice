@@ -55,6 +55,9 @@ void primeNumbers(int* totalPrimes, int first, int last, int procNum, int procRa
     if (procRank == 0 && first == 1) {
         totalPrimes[0] = 0;
     }
+
+    delete[] trunkedPrimes;
+    delete[] buff;
 }
 
 int main(int argc, char** argv) {
@@ -65,7 +68,7 @@ int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
 
     if (argc != 3) {
-        cout << "2 parameters required" << endl;
+        // cout << "2 parameters required" << endl;
         exit(0);
     }
 
@@ -76,7 +79,7 @@ int main(int argc, char** argv) {
     MPI_Comm_rank(MPI_COMM_WORLD, &procRank);
 
     if (procRank == 0) {
-        cout << endl << "Number of processes: " << procNum << endl << endl;
+        // cout << endl << "Number of processes: " << procNum << endl << endl;
         totalPrimes = new int [last - first];
     }
 
@@ -121,5 +124,7 @@ int main(int argc, char** argv) {
         // outFile.close();
         // maxFile.close();
         // totalFile.close();
+
+        delete[] totalPrimes;
     }
 }
