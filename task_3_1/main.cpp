@@ -13,7 +13,7 @@
 using namespace std;
 
 void primeNumbers(int* totalPrimes, int first, int last, int procNum, int procRank) {
-    int len = last - first;
+    int len = (int)(ceil((last - first) * 1.0 / procNum) * procNum);
     int iMax = int(sqrt(last));
     int* trunkedPrimes = new int [iMax + 1];
 
@@ -50,7 +50,7 @@ void primeNumbers(int* totalPrimes, int first, int last, int procNum, int procRa
         }
     }
 
-    MPI_Gather(&buff[0], partSize, MPI_INT, &totalPrimes[0], partSize, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(buff, partSize, MPI_INT, totalPrimes, partSize, MPI_INT, 0, MPI_COMM_WORLD);
 
     if (procRank == 0 && first == 1) {
         totalPrimes[0] = 0;
@@ -61,14 +61,14 @@ void primeNumbers(int* totalPrimes, int first, int last, int procNum, int procRa
 }
 
 int main(int argc, char** argv) {
-    int* totalPrimes;
+    int* totalPrimes = NULL;
     int first, last, procNum, procRank;
     double begin, end, time, totalTime, maxTime;
 
     MPI_Init(&argc, &argv);
 
     if (argc != 3) {
-        // cout << "2 parameters required" << endl;
+        cout << "2 parameters required" << endl;
         exit(0);
     }
 
@@ -78,10 +78,10 @@ int main(int argc, char** argv) {
     MPI_Comm_size(MPI_COMM_WORLD, &procNum);
     MPI_Comm_rank(MPI_COMM_WORLD, &procRank);
 
-    if (procRank == 0) {
-        // cout << endl << "Number of processes: " << procNum << endl << endl;
-        totalPrimes = new int [last - first];
-    }
+    // if (procRank == 0) {
+    //     cout << endl << "Number of processes: " << procNum << endl << endl;
+        totalPrimes = new int [(int)(ceil((last - first) * 1.0 / procNum) * procNum)];
+    // }
 
     MPI_Bcast(&first, 1, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Bcast(&last, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -99,31 +99,6 @@ int main(int argc, char** argv) {
     if (procRank == 0) {
         int result = count(totalPrimes, &totalPrimes[last - first], 1);
         cout << result << endl;
-        
-        // cout << "Total time: " << totalTime << endl;
-        // cout << "Max process time: " << maxTime << endl;
-        // cout << result << " prime numbers between " << first << " and " << last << endl;
-
-        // ofstream outFile;
-        // ofstream maxFile;
-        // ofstream totalFile;
-    
-        // outFile.open("out.txt", ios::out | ios::trunc);
-        // maxFile.open("max.csv", ios::out | ios::app);
-        // totalFile.open("total.csv", ios::out | ios::app);
-
-        // for (int i = 0; i < last - first; i++) {
-        //     if (totalPrimes[i]) {
-        //         outFile << first + i << " ";
-        //     }
-        // }
-
-        // maxFile << procNum << "\t" << maxTime << endl;
-        // totalFile << procNum << "\t" << totalTime << endl;
-
-        // outFile.close();
-        // maxFile.close();
-        // totalFile.close();
 
         delete[] totalPrimes;
     }
