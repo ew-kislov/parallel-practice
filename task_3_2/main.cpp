@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
     first = atoi(argv[2]);
     last = atoi(argv[3]);
 
-    cout << "Number of threads: " << threadNum << endl << endl;
+    // cout << "Number of threads: " << threadNum << endl << endl;
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
