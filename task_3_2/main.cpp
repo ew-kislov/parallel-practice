@@ -83,7 +83,7 @@ int main(int argc, char *argv[]) {
 
     pthread_attr_init(&threadAttributes);
 
-    primes = new int[last];
+    primes = new int[last + threadNum];
 
     for (int i = 0; i < threadNum; i++) {
         int* bounds = new int[2];
