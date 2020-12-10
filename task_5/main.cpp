@@ -23,37 +23,6 @@ int coordsToRank(int i, int j, int k, int size) {
     return size * (size * k + i) + j;
 }
 
-double* fromBin(string fileName, int& n, int procRank, int procNum) {
-    double* block = NULL;
-    int blockNum = int(cbrt(procNum));
-    int* procCoords = getProcCoords(procRank, procNum);
-
-    MPI_File file;
-    MPI_Status status;
-    MPI_File_open(MPI_COMM_WORLD, fileName.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
-    MPI_File_set_view(file, 0, MPI_INT, MPI_INT, "native", MPI_INFO_NULL);
-    MPI_File_read(file, &n, 1, MPI_INT, &status);
-
-    int blockElems = n / blockNum;
-    block = new double [blockElems * blockElems];
-    int offset = coordsToOffset(procCoords, n, procNum);
-
-    MPI_File_set_view(file, sizeof(int) + offset * sizeof(double), MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
-
-    if (procCoords[2] == 0) {
-        for (int i = 0; i < blockElems; ++i) {
-            for (int j = 0; j < blockElems; ++j) {
-                MPI_File_read(file, &block[i * blockElems + j], 1, MPI_DOUBLE, &status);
-            }
-            MPI_File_seek(file, n - blockElems, MPI_SEEK_CUR);
-        }
-    }
-
-    MPI_File_close(&file);
-
-    return block;
-}
-
 int* getProcCoords(int procRank, int procNum) {
     int blockSize = int(cbrt(procNum));
     int* coords = new int[3];
@@ -146,6 +115,37 @@ int sendMatrix(int* procCoords, int procRank, int procNum) {
         int srcRank = coordsToRank(si, sj, sk, blockNum);
         MPI_Recv(B, blockElems * blockElems, MPI_DOUBLE, srcRank, MASTER_TO_SLAVE_TAG, MPI_COMM_WORLD, &status);
     }
+}
+
+double* fromBin(string fileName, int& n, int procRank, int procNum) {
+    double* block = NULL;
+    int blockNum = int(cbrt(procNum));
+    int* procCoords = getProcCoords(procRank, procNum);
+
+    MPI_File file;
+    MPI_Status status;
+    MPI_File_open(MPI_COMM_WORLD, fileName.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
+    MPI_File_set_view(file, 0, MPI_INT, MPI_INT, "native", MPI_INFO_NULL);
+    MPI_File_read(file, &n, 1, MPI_INT, &status);
+
+    int blockElems = n / blockNum;
+    block = new double [blockElems * blockElems];
+    int offset = coordsToOffset(procCoords, n, procNum);
+
+    MPI_File_set_view(file, sizeof(int) + offset * sizeof(double), MPI_DOUBLE, MPI_DOUBLE, "native", MPI_INFO_NULL);
+
+    if (procCoords[2] == 0) {
+        for (int i = 0; i < blockElems; ++i) {
+            for (int j = 0; j < blockElems; ++j) {
+                MPI_File_read(file, &block[i * blockElems + j], 1, MPI_DOUBLE, &status);
+            }
+            MPI_File_seek(file, n - blockElems, MPI_SEEK_CUR);
+        }
+    }
+
+    MPI_File_close(&file);
+
+    return block;
 }
 
 int main(int argc, char* argv[]) {
