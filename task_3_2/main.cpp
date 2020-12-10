@@ -18,13 +18,15 @@ int* trunkedPrimes;
 int* primes;
 int iMax;
 
+int first, last;
+
 void* threadFunction(void* params) {
     int* bounds = ((int *)params);
     int firstElement = bounds[0];
     int lastElement = bounds[1];
 
     for (int i = firstElement; i <= lastElement; i++) {
-        primes[i] = 1;
+        primes[i - first] = 1;
     }
 
     for (int i = 2; i <= iMax; i++) {
@@ -32,7 +34,7 @@ void* threadFunction(void* params) {
             int a = ceil((firstElement - i*i) * 1.0 / i);
             a = a < 0 ? 0 : a;
             for (int j = i*i + a * i; j <= lastElement; j += i) {
-                primes[j] = 0;
+                primes[j - first] = 0;
             }
         }
     }
@@ -41,7 +43,7 @@ void* threadFunction(void* params) {
 }
 
 int main(int argc, char *argv[]) {
-    int first, last, threadNum;
+    int threadNum;
 
     if (argc != 4) {
         exit(0);
@@ -80,7 +82,7 @@ int main(int argc, char *argv[]) {
 
     pthread_attr_init(&threadAttributes);
 
-    primes = new int[last + threadNum];
+    primes = new int [(int)(ceil((last - first) * 1.0 / threadNum) * threadNum)];
 
     for (int i = 0; i < threadNum; i++) {
         int* bounds = new int[2];
@@ -94,10 +96,10 @@ int main(int argc, char *argv[]) {
     }
 
     if (first == 1) {
-        primes[1] = 0;
+        primes[0] = 0;
     }
 
-    int result = count(&primes[first], &primes[last], 1);
+    int result = count(primes, &primes[last - first], 1);
     cout << result << endl;
 
     delete[] primes;
