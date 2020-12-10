@@ -44,15 +44,12 @@ int main(int argc, char *argv[]) {
     int first, last, threadNum;
 
     if (argc != 4) {
-        cout << "3 parameters required" << endl;
         exit(0);
     }
 
     threadNum = atoi(argv[1]);
     first = atoi(argv[2]);
     last = atoi(argv[3]);
-
-    // cout << "Number of threads: " << threadNum << endl << endl;
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL);
@@ -100,31 +97,8 @@ int main(int argc, char *argv[]) {
         primes[1] = 0;
     }
 
-	// gettimeofday(&end, NULL);
-    // float totalTime = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000) * 1.0 / 1000;
-
     int result = count(&primes[first], &primes[last], 1);
     cout << result << endl;
-
-    // cout << "Total time: " << totalTime << endl;
-    // cout << "Result: " << result << " prime numbers between " << first << " and " << last << endl;
-
-    // ofstream outFile;
-    // ofstream totalFile;
-    
-    // outFile.open("out.txt", ios::out | ios::trunc);
-    // totalFile.open("total.csv", ios::out | ios::app);
-
-    // for (int i = first; i < last; i++) {
-    //     if (primes[i]) {
-    //         outFile << i << " ";
-    //     }
-    // }
-
-    // totalFile << threadNum << "\t" << totalTime << endl;
-
-    // outFile.close();
-    // totalFile.close();
 
     delete[] primes;
     delete[] trunkedPrimes;
