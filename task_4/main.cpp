@@ -210,9 +210,9 @@ double* multiplyParallelRows(double* matrix, double* vector, int rows, int cols,
 int main(int argc, char *argv[]) {
     int procRank, procNum, strategy;
 
-    string fileMatrix = "data/matrix.bin";
-    string fileVector = "data/vector.bin";
-    string fileResult = "data/result.bin";
+    string fileMatrix = "matrix.bin";
+    string fileVector = "vector.bin";
+    string fileResult = "result.bin";
     string fileTime = "time.csv";
 
     double *vector, *result, *matrix;
@@ -245,16 +245,15 @@ int main(int argc, char *argv[]) {
     MPI_Finalize();
 
     if (procRank == 0) {
+        cout << procNum << " " << maxTime << endl;
         ofstream file(fileTime, ios::app);
-        file << procNum << "\t" << rows << "\t" << cols << "\t" << maxTime << endl;
+        file << procNum << "\t" << maxTime << endl;
         file.close();
 
         delete[] matrix;
         delete[] vector;
         delete[] result;
     }
-
-    cout << procNum << " " << maxTime << endl;
 
     return 0;
 }

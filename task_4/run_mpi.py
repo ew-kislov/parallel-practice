@@ -8,7 +8,7 @@ def generate_mpifile():
         for y in range(0, 8):
             for z in range(0, 8):
                 for t in range(0, 2):
-                    coords.append(str(x) + " " + str(y) + " " + str(z) + " " + str(t))
+                    coords.append(str(x) + " " + str(y) + " " + str(z) + " " + str(t) + "\n")
 
     random.shuffle(coords)
 
@@ -23,12 +23,23 @@ def run_process(command):
 
 
 def create_batch(m, n):
-    for process_pow in range(5, 10):
-        run_process("python generate_matrix.py " + str(m) + " " + str(n))
-        if m == 512 and n == 512:
-            run_process("mpisubmit.bg -n " + 2**process_pow + "-w 00:05:00 --stdout " + str(m) + "_" + str(n) + "_custom.csv ./main.out -mapfile map.txt")
+    print("./generator " + str(m) + " " + str(n))
 
-        run_process("mpisubmit.bg -n " + 2**process_pow + "-w 00:05:00 --stdout " + str(m) + "_" + str(n) + ".csv ./main.out")
+    if m == 512 and n == 512:
+            print("mpisubmit.bg -n 1 -w 00:05:00 --stdout " + str(m) + "_" + str(n) + "_custom.csv ./main.out -mapfile map.txt")
+            run_process("mpisubmit.bg -n 1 -w 00:05:00 --stdout " + str(m) + "_" + str(n) + "_custom.csv ./main.out -mapfile map.txt")
+
+    print("mpisubmit.bg -n 1 -w 00:05:00 --stdout " + str(m) + "_" + str(n) + ".csv ./main.out")
+    run_process("mpisubmit.bg -n 1 -w 00:05:00 --stdout " + str(m) + "_" + str(n) + ".csv ./main.out")
+
+    for process_pow in range(5, 10):
+        run_process("./generator " + str(m) + " " + str(n))
+        if m == 512 and n == 512:
+            print("mpisubmit.bg -n " + str(2**process_pow) + " -w 00:05:00 --stdout " + str(m) + "_" + str(n) + "_custom.csv ./main.out -mapfile map.txt")
+            run_process("mpisubmit.bg -n " + str(2**process_pow) + " -w 00:05:00 --stdout " + str(m) + "_" + str(n) + "_custom.csv ./main.out -mapfile map.txt")
+
+        print("mpisubmit.bg -n " + str(2**process_pow) + " -w 00:05:00 --stdout " + str(m) + "_" + str(n) + ".csv ./main.out")
+        run_process("mpisubmit.bg -n " + str(2**process_pow) + " -w 00:05:00 --stdout " + str(m) + "_" + str(n) + ".csv ./main.out")
 
 
 generate_mpifile()
