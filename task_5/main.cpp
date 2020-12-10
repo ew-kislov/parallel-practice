@@ -119,11 +119,13 @@ int sendMatrix(int* procCoords, int procRank, int procNum) {
 
 double* fromBin(string fileName, int& n, int procRank, int procNum) {
     double* block = NULL;
+
     int blockNum = int(cbrt(procNum));
     int* procCoords = getProcCoords(procRank, procNum);
 
     MPI_File file;
     MPI_Status status;
+
     MPI_File_open(MPI_COMM_WORLD, fileName.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &file);
     MPI_File_set_view(file, 0, MPI_INT, MPI_INT, "native", MPI_INFO_NULL);
     MPI_File_read(file, &n, 1, MPI_INT, &status);
@@ -139,7 +141,9 @@ double* fromBin(string fileName, int& n, int procRank, int procNum) {
             for (int j = 0; j < blockElems; ++j) {
                 MPI_File_read(file, &block[i * blockElems + j], 1, MPI_DOUBLE, &status);
             }
-            MPI_File_seek(file, n - blockElems, MPI_SEEK_CUR);
+            int offset;
+            MPI_File_get_position(file, &offset);
+            MPI_File_seek(file, offset + n - blockElems, MPI_SEEK_SET);
         }
     }
 
