@@ -190,22 +190,5 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    if (procCoords[2] == 0) {
-        resultC = new double [blockElems * blockElems];
-    }
-
-    int ri, rj, rk;
-    ri = procCoords[0];
-    rj = procCoords[1];
-    rk = 0;
-
-    int root = coordsToRank(ri, rj, rk, blockNum);
-
-    for (int i = 0; i < blockElems; ++i) {
-        for (int j = 0; j < blockElems; ++j) {
-            MPI_Reduce(&C[i * blockElems + j], &resultC[i * blockElems + j], 1, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
-        }
-    }
-
     MPI_Finalize();
 }
