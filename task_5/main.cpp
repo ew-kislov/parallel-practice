@@ -118,9 +118,7 @@ double* matrixFromBin(string fileName, int& n, int procRank, int procNum) {
 
     if (coordinates[2] == 0) {
         for (int i = 0; i < blockSize; ++i) {
-            for (int j = 0; j < blockSize; ++j) {
-                MPI_File_read(file, &block[i * blockSize + j], 1, MPI_DOUBLE, &status);
-            }
+            MPI_File_read(file, &block[i * blockSize], blockSize, MPI_DOUBLE, &status);
             int offset;
             MPI_File_get_position(file, &offset);
             MPI_File_seek(file, offset + n - blockElems, MPI_SEEK_SET);
@@ -149,10 +147,10 @@ void matrixToBin(string fileName, double* C, int n, int procRank, int procNum) {
 
     if (coordinates[2] == 0) {
         for (int i = 0; i < blockSize; ++i) {
-            for (int j = 0; j < blockSize; ++j) {
-                MPI_File_write(file, &C[i * blockSize + j], 1, MPI_DOUBLE, &status);
-            }
-            MPI_File_seek(file, n - blockSize, MPI_SEEK_CUR);
+            MPI_File_write(file, &C[i * blockSize], blockSize, MPI_DOUBLE, &status);
+            int offset;
+            MPI_File_get_position(file, &offset);
+            MPI_File_seek(file, offset + n - blockSize, MPI_SEEK_SET);
         }
     }
 
