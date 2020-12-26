@@ -45,6 +45,19 @@ double* matrixFromBin(string fileName, int& rows, int& cols, int& mode) {
     return matrix;
 }
 
+void toBin(const char* filename, float** matrix, size_t rows, size_t cols) {
+    int fd = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0777);
+
+    write(fd, &rows, sizeof(size_t));
+    write(fd, &cols, sizeof(size_t));
+
+    for (size_t i = 0; i < rows; i++) {
+        write(fd, matrix[i], sizeof(float) * cols);
+    }
+
+    close(fd);
+}
+
 double* vectorFromBin(string fileName, int& length) {
     int fd = open(fileName.c_str(), O_RDONLY, 0777);
 
@@ -249,6 +262,8 @@ int main(int argc, char *argv[]) {
         ofstream file(fileTime, ios::app);
         file << procNum << "\t" << maxTime << endl;
         file.close();
+
+        toBin(fileResult, result, rows, 1);
 
         delete[] matrix;
         delete[] vector;
